@@ -37,12 +37,18 @@ class IntSet
   end
 
   def insert(num)
+    idx = num % 20
+    @store[idx] << num
   end
 
   def remove(num)
+    idx = num % 20
+    @store[idx].pop(num)
   end
 
   def include?(num)
+    idx = num % 20
+    @store[idx].include?(num)
     
   end
 
@@ -66,12 +72,28 @@ class ResizingIntSet
   end
 
   def insert(num)
+    idx = num % @store.length
+    if !@store.flatten.include?(num)
+      resize! if @store[idx].length>0
+      idx = num % @store.length
+      @store[idx] << num 
+      @count += 1
+    end
   end
 
   def remove(num)
+    idx = num % @store.length
+    if @store.flatten.include?(num)
+      @count -= 1
+      @store[idx].pop(num)
+    end
+
   end
 
   def include?(num)
+    idx = num % @store.length
+    @store[idx].include?(num)
+
   end
 
   private
@@ -85,5 +107,9 @@ class ResizingIntSet
   end
 
   def resize!
+    @count = 0
+    duplicated_store = @store.dup
+    @store = Array.new(num_buckets * 2) { Array.new }
+    duplicated_store.flatten.each {|ele| insert(ele)}
   end
 end
